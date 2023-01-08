@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notes</title>
+  <style>
+    .form {
+      display: flex;
+      gap: 8px;
+    }
+    .form__button {
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 0;
+      border-radius: 4px;
+      background-color: rgb(183, 230, 183);
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .form__button:hover {
+      background-color: rgb(135, 227, 135);
+      transition: background-color 0.3s ease;
+    }
+
+    ul {
+      padding: 16px 0;
+      margin: 0;
+      list-style: none;
+    }
+    li {
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+    }
+
+    li>button{
+      margin-left: 8px;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 0;
+      border-radius: 4px;
+      background-color: rgb(239, 14, 14);
+      cursor: pointer;
+    }
+
+    .edit-button {
+      background-color: pink;
+    }
+
+    .notes__item-value {
+      padding: 6px;
+      min-width: 165px;
+      background-color: rgb(225, 220, 220);
+      border-radius: 4px;
+    }
+  </style>
+  <script src="https://unpkg.com/vue"></script>
+</head>
+<body>
+  
+<div class="app-wrapper">
+
+  <!-- vue start -->
+  <div id="notes">
+   <h1>{{ title }}</h1>
+   <br>
+   <br>
+
+    <form class="form" @submit.prevent="onSubmit">
+      <input class="form__input" type="text" v-model="input.value" :placeholder="input.placeholder" required>
+      <button class="form__button" type="submit">Add new Note</button>
+    </form>
+
+    <ul class="notes">
+      <li class="notes__item" v-for="({ id, title }, index) in notes" :key="id">
+        <span class="notes__item-value">{{ title }}</span>
+        <button class="edit-button" type="button" @click="editNotesItem(index)">&#9998;</button>
+        <button type="button" @click="removeNotesItem(index)">X</button>
+      </li>
+    </ul>
+
+  </div>
+  <!-- vue end -->
+
+</div>
+
+<script>
+
+const Notes = {
+  data() {
+    return {
+      title: 'Hi Vue 3',
+      input: {
+        value: '',
+        editedNote: '',
+        placeholder: 'Введите данные'
+      },
+      notes: [
+        {
+          id: 1,
+          title: 'Привет'
+        },
+        {
+          id: 2,
+          title: 'Привет 2'
+        },
+      ],
+      edeting: false,
+    };
+  },
+  mounted() {
+    this.getStartNotes();
+  },
+  watch: {
+    notes: {
+      handler(updatedNotes) {
+        const jsonUpdatedNotes = JSON.stringify(updatedNotes);
+        localStorage.setItem('notes', jsonUpdatedNotes);
+      },
+      deep: true,
+    }
+  },
+  methods: {
+    getStartNotes() {
+      const startNotes = localStorage.getItem('notes');
+      if (startNotes) {
+        this.notes = JSON.parse(startNotes);
+      }
+    },
+    removeNotesItem(index) {
+      // this.notes.splice(index, 1);
+      this.notes = this.notes.filter( (elem, i) => i !== index);
+    },
+    editNotesItem(index) {
+      this.input.value = this.notes[index].title;
+    },
+    onSubmit(index) {
+      const lastItemNotes = this.notes.length - 1;
+      this.notes.push(
+        {
+          id: this.notes.length + 1,
+          title: this.input.value
+        });
+      this.input.value = '';
+    },
+  },
+}
+
+Vue.createApp(Notes).mount('#notes');
+
+</script>
+</body>
+</html>
